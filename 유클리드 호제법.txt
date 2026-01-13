@@ -1,0 +1,52 @@
+#include <stdio.h>
+void bisect(int arr[1000000002],int size,int firstidx,int lastidx) //등분함수
+{
+    idx = firstidx
+    while (idx<=lastidx)
+    {
+        if (arr[idx]>0) continue;
+        arr[idx]++;
+        idx = idx+size;
+    }
+}
+void draw(int arr[1000000002],int idx)
+{
+    arr[idx]++;
+}
+int gcd(int a,int b) // 유클리드 호제법
+{
+    if (a > b)
+    {
+        int result = a%b;
+        if (result == 0) return b;
+        
+        return gcd(result,b);
+    }
+    else
+    {
+        int result = b%a;
+        if (result == 0) return a;
+        
+        return gcd(result,a);
+    }
+}
+
+int gcd_recursive(int a,int b)
+{
+    if (b==0) return a;
+    return gcd_recursive(b,a%b);
+}
+
+int lcm(int a,int b)
+{
+    int gcd = gcd_recursive(a,b);
+    return gcd*(a/gcd)*(b/gcd);
+}
+
+int main() {
+    int a = 18;
+    int b = 12;
+    printf("%d\n",gcd(a,b));
+    printf("%d",lcm(a,b));
+    return 0;
+}
