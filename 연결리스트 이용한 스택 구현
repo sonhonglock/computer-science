@@ -1,0 +1,82 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct node
+{
+    int data;
+    struct node* next;
+}node;
+
+typedef struct stack
+{
+    node* top;
+    int num;
+}stack;
+
+void stackinit(stack* stk)
+{
+    stk->top=NULL;
+    stk->num = 0;
+}
+
+void insert(stack* stk,int data)
+{
+    node* newnode = (node*)malloc(sizeof(node));
+    newnode->data = data;
+    newnode->next = NULL;
+    
+    if (stk->top == NULL)
+    {
+        stk->top=newnode;
+        (stk->num)++;
+    }
+    else
+    {
+        newnode->next = stk->top;
+        stk->top = newnode;
+        (stk->num)++;
+    }
+}
+
+int pop(stack* stk)
+{
+    if (stk->top == NULL)
+    {
+        return -1;
+    }
+    node* temp = stk->top;
+    int value = temp->data;
+    (stk->num)--;
+    stk->top = temp->next;
+    free(temp);
+    return value;
+}
+
+int stacknum(stack* stk)
+{
+    printf("%d\n",stk->num);
+}
+
+int isnull(stack* stk)
+{
+    if (stk->top == NULL)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+int printtop(stack* stk)
+{
+    if (isnull(stk)==1)
+    {
+        return -1;
+    }
+    else
+    {
+        return (stk->top)->data;
+    }
+}
