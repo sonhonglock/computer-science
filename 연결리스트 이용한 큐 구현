@@ -1,0 +1,149 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#pragma warning (disable : 4996)
+
+typedef struct node
+{
+	int value;				//노드 값
+	struct node* next;		//다음 노드의 주소를 저장
+}node;
+
+void enqueue(node** pHead, node** pTail, int data);
+int dequeue(node** pHead, node** pTail);
+void displayQueue(node* head, node* tail);
+void clearQueue(node** pHead, node** pTail);
+
+int main()
+{	
+	node* head = NULL;
+	node* tail = NULL;
+	int choice, data;
+
+	while (1)
+	{
+		system("cls");
+		printf("\n\n\t\t*** Circular Queue(원형큐) ***\n\n");
+		printf("1. enqueue(삽입)   2.dequeue(삭제)   3. print    4. clear   0. terminate\n");
+		printf("choice : ");
+		scanf("%d", &choice);
+		while (getchar() != '\n');
+
+		switch (choice)
+		{
+		case 1:
+			printf("\nInteger Input : ");
+			scanf("%d", &data);
+			while (getchar() != '\n');
+
+			enqueue(&head, &tail, data); //맨 뒤 삽입
+
+			break;
+		case 2:		
+
+			data = dequeue(&head, &tail); //맨 앞 삭제 후, 삭제된 값 리턴
+
+			if (data == -999999999)
+				printf("\n\n\t\tqueue underflow\n");
+			else
+				printf("\n\t\t\t%d enqueue!!!\n", data);
+			break;
+		case 3:	
+			displayQueue(head, tail);
+			break;
+		case 4:
+			clearQueue(&head, &tail);
+			break;
+		case 0:
+			clearQueue(&head, &tail);
+			exit(0);
+		}
+		printf("\n\n\t\t");
+		system("pause");
+	}
+
+	return 0;
+}
+
+void enqueue(node** pHead, node** pTail, int data) //O(1)
+{
+	//head == *pHead
+	//tail == *pTail
+
+	node* newNode;
+	newNode = (node*)malloc(sizeof(node));
+	newNode->value = data;
+	newNode->next = NULL;
+
+	if (*pHead == NULL)
+	{
+		//첫 노드인 경우는 head면서 tail
+		*pHead = newNode;
+		*pTail = newNode;
+		return;
+	}
+
+	(*pTail)->next = newNode;
+	*pTail = newNode;
+	(*pTail)->next = *pHead; //원형큐는 마지막 노드가 첫노드를 가리킨다.
+}
+
+int dequeue(node** pHead, node** pTail)
+{
+	int delValue;
+	node* delNode;
+	if (*pHead == NULL)
+		return -999999999;
+
+	delNode = *pHead; //첫 노드를 삭제할 노드로 설정
+	delValue = delNode->value; //삭제할 값 저장
+	*pHead = (*pHead)->next; //head는 다음으로 이동
+	free(delNode);
+	(*pTail)->next = *pHead;
+
+	if (*pHead == *pTail) //노드가 한 개인 경우??
+		(*pTail)->next = NULL;
+
+	if (*pHead == NULL)
+		*pTail = NULL;
+
+	return delValue; //삭제된 값 리턴
+}
+
+void displayQueue(node* head, node* tail)
+{
+	node* curNode;
+	system("cls");
+	printf("\n\nCircular Queue Display : ");
+	if (head == NULL)
+		return;
+
+	curNode = head; //첫 노드를 방문노드로 설정
+
+	while (curNode != tail)
+	{
+		printf("%d => ", curNode->value);
+		curNode = curNode->next;
+	}
+
+	printf("%d\n", curNode->value); //마지막 노드 출력
+}
+
+void clearQueue(node** pHead, node** pTail)
+{
+	node* delNode;
+	if (*pHead == NULL)
+		return;
+
+	//맨 앞 삭제 -> 반복
+	while (*pHead != *pTail) //마지막 노드는 포함X(head == tail)
+	{
+		delNode = *pHead;
+		(*pHead) = (*pHead)->next;
+		free(delNode);
+	}
+
+	free(*pHead); //마지막 노드 제거
+	*pHead = NULL;
+	*pTail = NULL;
+}
