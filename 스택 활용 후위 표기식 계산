@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h> //strtok
+#include "myArrayStack.h"
+
+#pragma warning (disable : 4996)
+
+int postfix(char* expr);
+
+int main()
+{
+	char expr[] = "3 4 + 5 * 6 -";
+
+	int result = postfix(expr);
+	printf("3 4 + 5 * 6 - = %d\n", result);
+
+	return 0;
+}
+
+int postfix(char* expr)
+{
+	//후위 표기식 -> 스택으로 계산
+	//연산자를 읽어들이기 전까지의 모든 값을 스택에 push
+	//연산자가 나오면 2개의 값을 pop해서 연산
+	//연산 결과를 스택에 push
+
+	stack stk; //스택 구조체 생성
+	initStack(&stk);
+
+	char* token = strtok(expr, " ");
+
+	while (token != NULL) //문자열의 끝까지 읽어들인다.
+	{
+		if (token[0] >= '0' && token[0] <= '9')
+		{
+			//숫자 형태의 문자를 실제 숫자로 변환
+			int num = token[0] - '0';
+
+			push(&stk, num);
+		}	
+		else
+		{
+			//연산자라면? 2개의 값을 꺼낸다.(pop)
+			int var2 = pop(&stk);
+			int var1 = pop(&stk);
+
+			//연산자에 따라 연산 결과를 스택에 push
+			switch (token[0])
+			{
+			case '+':
+				push(&stk, var1 + var2);
+				break;
+			case '-':
+				push(&stk, var1 - var2);
+				break;
+			case '*':
+				push(&stk, var1 * var2);
+				break;
+			case '/':
+				push(&stk, var1 / var2);
+				break;
+			default:
+				return -99999;
+			}
+		}
+
+		token = strtok(NULL, " ");
+	}
+	//return peek(&stk);
+	return stk.arr[0];
+}
