@@ -1,0 +1,184 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define max_size 1000
+
+typedef struct stack
+{
+    int top;
+    int arr[max_size];
+    int count;
+}stack;
+
+void stackinit(stack* stk)
+{
+    stk->top = -1;
+    stk->count = 0;
+}
+
+int isfull(stack* stk)
+{
+    if (stk->top >= max_size-1)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+void push(stack* stk,int data)
+{
+    if (isfull(stk)) return;
+    
+    stk->arr[++(stk->top)] = data;
+    stk->count++;
+}
+
+int isempty(stack* stk)
+{
+    if (stk->top == -1)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+int pop(stack* stk)
+{
+    if (isempty(stk)) return -9999999;
+    
+    int popdata = stk->arr[(stk->top)--];
+    stk->count--;
+    return popdata;
+}
+
+void clearstack(stack* stk)
+{
+    stk->top = -1;
+}
+
+int peek(stack* stk)
+{
+    if (isempty(stk)) return -9999;
+    
+    return stk->arr[stk->top];
+}
+
+void displaystack(stack* stk)
+{
+    if (isempty(stk)) return ;
+    
+    for (int i=0;i<=stk->top;i++)
+    {
+        printf("%d ",stk->arr[i]);
+    }
+}
+
+typedef struct queue
+{
+    int arr[max_size];
+    int count;
+    int front;
+    int rear;
+}queue;
+
+void queueinit(queue* q)
+{
+    q->count = q->front = q->rear = 0;
+}
+
+int isemptyque(queue* q)
+{
+    if (q->count <= 0)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+int isfullque(queue* q)
+{
+    if (q->count >= max_size)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+void enqueue(queue* q,int data)
+{
+    if (isfullque(q)) return;
+    
+    q->arr[(q->rear)++] = data;
+    q->rear %= max_size;
+    q->count++;
+}
+
+int dequeue(queue* q)
+{
+    if (isemptyque(q)) return -9999999;
+    
+    int delValue = q->arr[(q->front)++];
+    q->front %= max_size;
+    q->count--;
+    
+    return delValue;
+}
+
+int peekque(queue* q)
+{
+    if (isemptyque(q)) return -9999999;
+    return q->arr[(q->front)];
+}
+
+int main() {
+    int N;
+    scanf("%d",&N);
+    int valid=1;
+    int count=1;
+    int k;
+    stack stk;
+    stackinit(&stk);
+    queue que;
+    queueinit(&que);
+
+    for (int i=0;i<N;i++)
+    {
+        scanf("%d",&k);
+        enqueue(&que,k);
+    }
+    
+    while (!isemptyque(&que) || !isempty(&stk))
+    {
+        if (!isemptyque(&que) && count == peekque(&que))
+        {
+            dequeue(&que);
+            count++;
+        }
+        else if (!isempty(&stk) && count == peek(&stk))
+        {
+            pop(&stk);
+            count++;
+        }
+        else if (!isemptyque(&que))
+        {
+            push(&stk,dequeue(&que));
+        }
+        else
+        {
+            valid = 0;
+            break;
+        }
+    }
+    
+    printf("%s",valid ? "Nice" : "Sad");
+}
