@@ -1,0 +1,147 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct node
+{
+    int data;
+    struct node* next;
+}node;
+
+typedef struct deque
+{
+    node* head;
+    node* tail;
+    int count;
+}deque;
+
+void dequeinit(deque* d)
+{
+    d->head = NULL;
+    d->tail = NULL;
+    d->count = 0;
+}
+
+void insertfront(deque* d,int data)
+{
+    node* newnode = (node*)malloc(sizeof(node));
+    newnode->data = data;
+    newnode->next = NULL;
+    
+    if (d->count ==0)
+    {
+        d->head = newnode;
+        d->tail = newnode;
+        d->count++;
+        return;
+    }
+    
+    newnode->next = d->head;
+    d->head = newnode;
+    d->count++;
+}
+
+void inserttail(deque* d,int data)
+{
+    node* newnode = (node*)malloc(sizeof(node));
+    newnode->data = data;
+    newnode->next = NULL;
+    
+    if (d->count ==0)
+    {
+        d->head = newnode;
+        d->tail = newnode;
+        d->count++;
+        return;
+    }
+    
+    (d->tail)->next = newnode;
+    d->tail = newnode;
+    d->count++;
+}
+
+int isempty(deque* d)
+{
+    if (d->count == 0)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+int pophead(deque* d)
+{
+    if (isempty(d)) return -1;
+    
+    node* delnode = d->head;
+    int popdata = delnode->data;
+    d->head = delnode->next;
+    free(delnode);
+    d->count--;
+    return popdata;
+}
+
+int poptail(deque* d)
+{
+    if (isempty(d)) return -1;
+    
+    node* curnode = d->head;
+    node* prevnode = d->head;
+    
+    if (d->count == 1)
+    {
+        int popdata = (p->head)->data;
+        free(p->head);
+        p->head = NULL;
+        p->tail = NULL;
+        p->count = 0;
+        return;
+    }
+    
+    while (prevnode->next != d->tail)
+    {
+        prevnode = prevnode->next;
+    }
+    
+    node* delNode = d->tail;
+    int popdata = delNode->data;
+    d->tail = prevnode;
+    free(delNode);
+    d->count--;
+    
+    if (d->count ==0)
+    {
+        d->head = NULL;
+        d->tail = NULL;
+        return popdata;
+    }
+    return popdata;
+}
+
+int dequecount(deque* d)
+{
+    return d->count;
+}
+
+int peekfront(deque* d)
+{
+    if (isempty(d)) return -1;
+    
+    return (d->head)->data;
+}
+
+int peektail(deque* q)
+{
+    if (isempty(d)) return -1;
+    
+    return (d->tail)->data;
+}
+
+int main() {
+    // Write C code here
+    printf("Try programiz.pro");
+
+    return 0;
+}
