@@ -1,0 +1,102 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define max_size 1000
+
+typedef struct deque
+{
+    int front;
+    int rear;
+    int count;
+    int arr[max_size];
+}deque;
+
+void dequeinit(deque* d)
+{
+    d->front = 0;
+    d->rear = 0;
+    d->count = 0;
+}
+
+int isempty(deque* d)
+{
+    if (d->count ==0)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+int isfull(deque* d)
+{
+    return (d->count == max_size);
+}
+
+void insertfront(deque* d,int data)
+{
+    if (isfull(d)) return;
+    
+    d->front = (d->front-1+max_size)%max_size;
+    d->arr[d->front] = data;
+    d->count++;
+}
+
+void insertrear(deque* d,int data)
+{
+    if (isfull(d)) return;
+    
+    d->arr[d->rear] = data;
+    d->rear = (d->rear+1)%max_size;
+    d->count++;
+}
+
+int popfront(deque* d)
+{
+    if (isempty(d)) return -1;
+    
+    int popdata = d->arr[d->front];
+    d->front = (d->front+1)%max_size;
+    d->count--;
+    return popdata;
+}
+
+int poprear(deque* d)
+{
+    if (isempty(d)) return -1;
+    
+    d->rear = (d->rear-1+max_size)%max_size;
+    int popdata = d->arr[d->rear];
+    d->count--;
+    return popdata;
+}
+
+int peekfront(deque* d)
+{
+    if (isempty(d)) return -1;
+    
+    return d->arr[d->front];
+}
+
+int peekrear(deque* d)
+{
+    if (isempty(d)) return -1;
+    
+    return d->arr[(d->rear-1+max_size)%max_size];
+}
+
+void printdeque(deque* d)
+{
+    if (isempty(d))
+    {
+        printf("데이터 없음 !!");
+        return;
+    }
+    int idx = d->front;
+    for (int i=0;i<d->count;i++)
+    {
+        printf("%d ",d->arr[idx]);
+        idx = (idx+1)%max_size;
+    }
+}
