@@ -1,0 +1,136 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define max_size 100000
+
+//원형큐 구현//
+
+typedef struct queue
+{
+    int front;
+    int rear;
+    int* arr;
+    int capacity;
+    int count;
+}queue;
+
+void queueinit(queue* q,int capacity)
+{
+    q->front = 0;
+    q->rear = 0;
+    q->arr = (int*)malloc(sizeof(int)*capacity);
+    q->capacity = capacity;
+    q->count = 0;
+}
+
+int isfull(queue* q)
+{
+    return (q->count == q->capacity);
+}
+
+int isempty(queue* q)
+{
+    return (q->count == 0);
+}
+
+void enqueue(queue* q,int data)
+{
+    if (isfull(q)) return;
+    
+    q->arr[q->rear++] = data;
+    q->rear %= q->capacity;
+    q->count++;
+}
+
+int dequeue(queue* q)
+{
+    if (isempty(q)) return -99999;
+    
+    int data = q->arr[q->front++];
+    q->front %= q->capacity;
+    q->count--;
+    return data;
+}
+
+int main() {
+    int N;
+    scanf("%d",&N);
+    int arr[N];
+    int numarr[N];
+    
+    for (int i=0;i<N;i++)
+    {
+        int a;
+        scanf("%d",&a);
+        arr[i] = a;
+    }
+    
+    for (int i=0;i<N;i++)
+    {
+        int a;
+        scanf("%d",&a);
+        numarr[i] = a;
+    }
+    
+    int continuous = 1;
+    
+    for (int i=0;i<N;i++)
+    {
+        if (arr[i]==0){
+            continuous = 0;
+            break;
+        }
+    }
+    
+    int idx;
+    
+    for (int i=N-1;i>=0;i--)
+    {
+        if (arr[i]==0)
+        {
+            idx = i;
+            break;
+        }
+    }
+    
+    int M;
+    scanf("%d",&M);
+    
+    if (continuous)
+    {
+        for (int i=1;i<M;i++)
+        {
+            int a;
+            scanf("%d",&a);
+            printf("%d ",a);
+        }
+        int a;
+        scanf("%d",&a);
+        printf("%d",a);
+        return 0;
+    }
+    
+    queue q;
+    queueinit(&q,N+M+1);
+    
+    for (int i=idx;i>=0;i--)
+    {
+        if (arr[i]==0)
+        {
+            enqueue(&q,numarr[i]);
+        }
+    }
+    
+    for (int i=0;i<M-1;i++)
+    {
+        int a;
+        scanf("%d",&a);
+        enqueue(&q,a);
+        printf("%d ",dequeue(&q));
+    }
+    
+    int a;
+    scanf("%d",&a);
+    enqueue(&q,a);
+    printf("%d",dequeue(&q));
+    return 0;
+}
