@@ -1,0 +1,114 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#define MAX_SIZE 200003
+
+typedef struct node
+{
+    char arr[21];
+    int version;
+    struct node* next;
+}node;
+
+typedef struct hashtable
+{
+    node** head;
+    int table_size;
+    int count;
+}hashtable;
+
+void hashinit(hashtable* h)
+{
+    h->head = (node**)calloc(MAX_SIZE,sizeof(node*));
+    h->table_size = MAX_SIZE;
+    h->count = 0;
+}
+
+unsigned long long hash(char arr[21])
+{
+    unsigned long long result = 0;
+
+    char* ptr = arr;
+    while (*ptr)
+    {
+        result = (result*131+(unsigned char)(*ptr))%MAX_SIZE;
+        ptr++;
+    }
+    return result;
+}
+
+int hashfind(hashtable* h,char arr[21],int version)
+{
+    unsigned long long hashvalue = hash(arr);
+
+    node* curnode = h->head[hashvalue];
+    while (curnode)
+    {
+        if (strcmp(curnode->arr,arr)==0 && curnode->version == version) return 1;
+        curnode = curnode->next;
+    }
+    return 0;
+}
+
+node* hashfindnode(hashtable* h,char arr[21],int version)
+{
+    unsigned long long hashvalue = hash(arr);
+
+    node* curnode = h->head[hashvalue];
+    while (curnode)
+    {
+        if (strcmp(curnode->arr,arr)==0 && curnode->version == version) return curnode;
+        curnode = curnode->next;
+    }
+    return NULL;
+}
+
+void hashinsert(hashtable* h,char arr[21],int version)
+{
+    if (hashfind(h,arr,version)) return;
+    
+    node* newnode = (node*)malloc(sizeof(node));
+    newnode->version = version;
+    newnode->next = NULL;
+    strcpy(newnode->arr,arr);
+    unsigned long long hashvalue = hash(arr);
+
+    if (h->head[hashvalue] == NULL)
+    {
+        h->head[hashvalue] = newnode;
+        h->count++;
+        return;
+    }
+    else
+    {
+        newnode->next = h->head[hashvalue];
+        h->head[hashvalue] = newnode;
+        h->count++;
+        return;
+    }
+}
+
+int main(){
+    int N;
+    scanf("%d",&N);
+    char arr[21];
+    hashtable h;
+    hashinit(&h);
+    int nowVersion = 0;
+
+    for (int i=0;i<N;i++)
+    {
+        scanf("%s",arr);
+        if (strcmp(arr,"ENTER")==0){
+            nowVersion++;
+            continue;
+        }
+        hashinsert(&h,arr,nowVersion);
+    }
+
+    printf("%d",h.count);
+
+}
+
+//시간 복잡도 -> 대략 10^5,안전//
