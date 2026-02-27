@@ -1,0 +1,218 @@
+/* 문제가 요구하는 핵심적인 아이디어를 벗어낫다.
+하지만 구현력과 사고력을 기르기 위해 정답은 맞히는 방향으로 구현했다.
+구현 도중 메모리가 너무 커지는 문제가 있었는데,가장 오른쪽 큐에만
+N+count 만큼의 메모리를 할당하고,나머지엔 2만큼의 메모리를 할당하는
+방식으로 문제를 해결했다.*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#define max_size 100000
+
+//원형 덱 구현//
+typedef struct deque
+{
+    int front;
+    int rear;
+    int* arr;
+    int count;
+    int capacity;
+    int isstackque;
+}deque;
+
+void dequeinit(deque* d,int capacity)
+{
+    d->front = 0;
+    d->rear = 0;
+    d->count = 0;
+    d->capacity = capacity;
+    d->arr = (int*)malloc(sizeof(int)*capacity);
+}
+
+int isempty(deque* d)
+{
+    return (d->count ==0);
+}
+
+int isfull(deque* d)
+{
+    return (d->count == d->capacity);
+}
+
+void insertfront(deque* d,int data)
+{
+    if (isfull(d)) return;
+    
+    d->front = (d->front-1+d->capacity)%d->capacity;
+    d->arr[d->front] = data;
+    d->count++;
+}
+
+void insertrear(deque* d,int data)
+{
+    if (isfull(d)) return;
+    
+    d->arr[d->rear] = data;
+    d->rear = (d->rear+1)%d->capacity;
+    d->count++;
+}
+
+int popfront(deque* d)
+{
+    if (isempty(d)) return -1;
+    
+    int popdata = d->arr[d->front];
+    d->front = (d->front+1)%d->capacity;
+    d->count--;
+    return popdata;
+}
+
+int poprear(deque* d)
+{
+    if (isempty(d)) return -1;
+    
+    d->rear = (d->rear-1+d->capacity)%d->capacity;
+    int popdata = d->arr[d->rear];
+    d->count--;
+    return popdata;
+}
+
+typedef struct queuestack
+{
+    deque* arr;
+    int count;
+}queuestack;
+
+/*void queuestackinit(queuestack* qs,int capacity)
+{
+    qs->count = capacity;
+    for (int i=0;i<qs->count;i++)
+    {
+        dequeinit(&(qs->arr[i]),capacity);
+    }
+}*/
+
+int main() {
+   int N;
+   scanf("%d",&N);
+   queuestack qs;
+   //queuestackinit(&qs,N);//
+   
+   qs.arr = (deque*)malloc(sizeof(deque)*N);
+   qs.count = N;
+   
+   for (int i=0;i<N;i++)
+   {
+       int a;
+       scanf("%d",&a);
+       (qs.arr[i]).isstackque = a;
+   }
+   
+   int continuous = 1;      //모두다 스택인 상태//
+   
+   for (int i=0;i<N;i++)       //큐가 하나라도 있으면 표시//
+   {
+       if ((qs.arr[i]).isstackque==0)
+       {
+           continuous = 0;
+           break;
+       }
+   }
+   
+   int idx;                 //가장 오른쪽에 있는 큐 찾음//
+   
+   for (int i=N-1;i>=0;i--)
+   {
+       if ((qs.arr[i]).isstackque ==0)
+       {
+           idx = i;
+           break;
+       }
+   }
+   
+   int count = 0;
+   
+   for (int i=idx;i>=0;i--)   //큐 개수 찾기//
+   {
+       if ((qs.arr[i]).isstackque ==0)
+       {
+           count++;
+       }
+   }
+   
+   int arr[count];          //큐가 있는 인덱스 찾기//
+   int index = count-1;
+   for (int i=idx;i>=0 && index >=0;i--)
+   {
+       if ((qs.arr[i]).isstackque == 0)
+       {
+           arr[index--] = i;
+       }
+   }
+   
+   //qs 초기화 작업,제일 오른쪽 큐만
+   if (continuous)   // 전부다 스택이라면
+   {
+       for (int i=0;i<N;i++)
+       {
+           dequeinit(&(qs.arr[i]),2);
+       }
+   }
+   else
+   {
+       for (int i=0;i<N;i++)
+       {
+           if (i==idx)    // 가장 오른쪽 큐일때
+           {
+               dequeinit(&(qs.arr[i]),N+count+5);
+           }
+           else
+           {
+               dequeinit(&(qs.arr[i]),2);   // 나머지
+           }
+       }
+   }
+   
+   for (int i=0;i<N;i++)
+   {
+       int a;
+       scanf("%d", &a);
+       insertrear(&(qs.arr[i]),a);
+   }
+   
+   int M;
+   scanf("%d",&M);
+   
+   if (continuous)
+   {
+       for (int i=0;i<M-1;i++)
+       {
+           int a;
+           scanf("%d",&a);
+           printf("%d ",a);
+       }
+       int a;
+       scanf("%d",&a);
+       printf("%d",a);
+       return 0;
+   }
+   
+   for (int i=count-1;i>=0;i--)
+   {
+       insertrear(&(qs.arr[idx]),popfront(&(qs.arr[arr[i]])));
+   }
+
+   for (int i=0;i<M-1;i++)
+   {
+       int a;
+       scanf("%d",&a);
+     
+       insertrear(&(qs.arr[idx]),a);
+    
+       printf("%d ",popfront(&(qs.arr[idx])));
+   }
+   
+   int a;
+   scanf("%d",&a);
+   insertrear(&(qs.arr[idx]),a);
+   printf("%d",popfront(&(qs.arr[idx])));
+}

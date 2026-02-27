@@ -1,0 +1,142 @@
+// Online C compiler to run C program online
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define table_size 200003
+
+unsigned long long hash(char arr[11])
+{
+    char* temp = arr;
+    unsigned long long result=0;
+    while (*temp != '\0')
+    {
+        result =(result*131+(unsigned char)*temp)%table_size;
+        temp++;
+    }
+    return result;
+}
+
+typedef struct node
+{
+    char arr[11];
+    int count;
+    struct node* next;
+}node;
+
+typedef struct hashtable
+{
+    node** head;
+    int tablesize;
+    int hashcount;
+}hashtable;
+
+void hashinit(hashtable* h)
+{
+    h->head = (node**)calloc(table_size,sizeof(node*));
+    h->tablesize = table_size;
+    h->hashcount = 0;
+}
+
+int hashfind(hashtable* h,char arr[11])
+{
+    unsigned long long idx = hash(arr);
+    node* curnode = h->head[idx];
+    while (curnode)
+    {
+        if (strcmp(curnode->arr,arr)==0) return 1;
+        curnode = curnode->next;
+    }
+    return 0;
+}
+
+node* hashfindnode(hashtable* h,char arr[11])
+{
+    unsigned long long idx = hash(arr);
+    node* curnode = h->head[idx];
+    while (curnode)
+    {
+        if (strcmp(curnode->arr,arr)==0) return curnode;
+        curnode = curnode->next;
+    }
+    return NULL;
+}
+
+void hashinsert(hashtable* h,char arr[11])
+{
+    if (hashfind(h,arr)) return;
+    unsigned long long idx = hash(arr);
+    node* newnode = (node*)malloc(sizeof(node));
+    strcpy(newnode->arr,arr);
+    newnode->next = NULL;
+    newnode->count = 1;
+    
+    if (h->head[idx] == NULL)
+    {
+        h->head[idx] = newnode;
+        h->hashcount++;
+        return;
+    }
+    else
+    {
+        newnode->next = h->head[idx];
+        h->head[idx] = newnode;
+        h->hashcount++;
+        return;
+    }
+}
+
+int compare(const void* a,const void* b)
+{
+    node* x = *(node**)a;
+    node* y = *(node**)b;
+    
+    if (x->count>y->count) return -1;
+    if (x->count<y->count) return 1;
+    
+    if (strlen(x->arr)>strlen(y->arr)) return -1;
+    if (strlen(x->arr)<strlen(y->arr)) return 1;
+    
+    if (strcmp(x->arr,y->arr)<0) return -1;
+    if (strcmp(x->arr,y->arr)>0) return 1;
+    
+    return 0;
+}
+int main() {
+    int N,M;
+    scanf("%d %d",&N,&M);
+    hashtable h;
+    hashinit(&h);
+    
+    for (int i=0;i<N;i++)
+    {
+        char arr[11];
+        scanf("%s",arr);
+        if (strlen(arr)<M) continue;
+        if (hashfind(&h,arr))
+        {
+            node* findnode = hashfindnode(&h,arr);
+            findnode->count++;
+            continue;
+        }
+        hashinsert(&h,arr);
+    }
+    
+    node* nodearr[h.hashcount];
+    int idx = 0;
+    for (int i=0;i<table_size;i++)
+    {
+        node* curnode = h.head[i];
+        while (curnode)
+        {
+            nodearr[idx++] = curnode;
+            curnode = curnode->next;
+        }
+    }
+    
+    qsort(nodearr,h.hashcount,sizeof(node*),compare);
+    
+    for (int i=0;i<h.hashcount;i++)
+    {
+        printf("%s\n",nodearr[i]->arr);
+    }
+}

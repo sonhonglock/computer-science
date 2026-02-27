@@ -1,0 +1,130 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct node
+{
+    char a;
+    struct node* next;
+}node;
+
+typedef struct stack
+{
+    node* top;
+    int num;
+}stack;
+
+void stackinit(stack* stk)
+{
+    stk->top=NULL;
+    stk->num = 0;
+}
+
+void insert(stack* stk,char a)
+{
+    node* newnode = (node*)malloc(sizeof(node));
+    newnode->a = a;
+    newnode->next = NULL;
+    
+    if (stk->top == NULL)
+    {
+        stk->top=newnode;
+        (stk->num)++;
+    }
+    else
+    {
+        newnode->next = stk->top;
+        stk->top = newnode;
+        (stk->num)++;
+    }
+}
+
+void pop(stack* stk)
+{
+    if (stk->top == NULL)
+    {
+        return;
+    }
+    node* temp = stk->top;
+    int value = temp->a;
+    (stk->num)--;
+    stk->top = temp->next;
+    free(temp);
+    return;
+}
+
+/*int stacknum(stack* stk)
+{
+    printf("%d\n",stk->num);
+}*/
+
+int isempty(stack* stk)
+{
+    if (stk->top == NULL)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+/*int printtop(stack* stk)
+{
+    if (isnull(stk)==1)
+    {
+        return -1;
+    }
+    else
+    {
+        return (stk->top)->data;
+    }
+}*/
+
+int main() {
+    int K;
+    scanf("%d",&K);
+    
+    for (int i=0;i<K;i++)
+    {
+        stack p;
+        stackinit(&p);
+        
+        char arr[51];
+        scanf("%s",arr);
+        
+        char* cur = arr;
+        int valid = 1;
+        
+        while (*cur !='\0')
+        {
+            if (*cur == '(')
+            {
+                insert(&p,*cur);
+            }
+            else
+            {
+                if (isempty(&p))
+                {
+                    valid=0;
+                    break;
+                }
+                pop(&p);
+            }
+            cur++;
+        }
+        
+        if (isempty(&p)==0)
+        {
+            valid = 0 ;
+        }
+        
+        while (isempty(&p)==0)
+        {
+            pop(&p);
+        }
+        
+        printf("%s\n",valid ? "YES":"NO");
+    }
+}

@@ -1,0 +1,144 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#pragma warning (disable : 4996)
+
+#define MAX_SIZE 5
+
+typedef struct stack
+{
+	int arr[MAX_SIZE];
+	int top;
+}stack;
+
+void initStack(stack* const ptr);
+void push(stack* const ptr, int data);
+int pop(stack* const ptr);
+int peek(const stack* const ptr);
+int isEmpty(const stack* const ptr);
+void clearStack(stack* const ptr);
+void printStack(const stack* const ptr);
+
+int main()
+{
+	int choice, data;
+	stack stk; //구조체 변수 선언
+	initStack(&stk);
+
+	while (1)
+	{
+		system("cls");
+		printf("\n\n\t\t*** Stack with Array ***\n\n");
+		printf("\t\t1. push    2. pop    3. peek    4. print    5. clear    0. exit\n");
+		printf("\t\tchoice : [ ]\b\b");
+		scanf("%d", &choice);
+		while (getchar() != '\n');
+
+		switch (choice)
+		{
+		case 1:
+			printf("\n\n\t\tEnter an Integer: ");
+			scanf("%d", &data);
+
+			push(&stk, data);
+			break;
+		case 2:
+			data = pop(&stk);
+
+			if (data == -99999)
+				printf("\n\n\t\tStack Underflow\n");
+			else
+				printf("\n\n\t\tpop data= %d\n", data);
+			break;
+		case 3:
+			//삭제되지 않고 꼭대기의 값만 반환된다.
+			data = peek(&stk);
+
+			if (data == -99999)
+				printf("\n\n\t\tStack Underflow\n");
+			else
+				printf("\n\n\t\tPeek data= %d\n", data);
+			break;
+		case 4:
+			printStack(&stk);
+			break;
+		case 5:
+			clearStack(&stk);
+			printf("\n\n\t\tStack Clear!\n");
+			break;
+		case 0:
+			exit(0);
+		}
+		printf("\n\n\t\t");
+		system("pause");
+	}
+	return 0;
+}
+
+void push(stack* const ptr, int data)
+{
+	if (ptr->top >= MAX_SIZE - 1)
+	{
+		printf("\n\n\t\tStack Overflow\n");
+		return;
+	}
+	(ptr->top)++; //스택 배열의 인덱스로 사용
+	ptr->arr[ptr->top] = data;
+}
+
+void initStack(stack* const ptr)
+{
+	ptr->top = -1;
+}
+
+int pop(stack* const ptr)
+{
+	//if (ptr->top <= -1)
+	if (isEmpty(ptr))
+	{
+		//printf("\n\n\t\tStack Underflow\n");
+		return -99999;
+	}
+	int delValue = ptr->arr[ptr->top];
+	//배열에서 삭제는 논리적인 삭제다.
+	(ptr->top)--;
+	return delValue; //삭제된 값 리턴
+}
+
+int peek(const stack* const ptr)
+{
+	//if (ptr->top <= -1)
+	if(isEmpty(ptr))
+	{
+		//printf("\n\n\t\tStack Underflow\n");
+		return -99999;
+	}
+	return ptr->arr[ptr->top];
+}
+
+int isEmpty(const stack* const ptr)
+{
+	if (ptr->top == -1) //스택이 비어 있어?
+		return 1;
+	else
+		return 0;
+}
+
+void clearStack(stack* const ptr)
+{
+	//논리적인 제거
+	ptr->top = -1;
+}
+
+void printStack(const stack* const ptr)
+{
+	//Last In First Out, 후입선출
+	printf("\n\n\t\tStack Display(LIFO): ");
+
+	if (isEmpty(ptr))
+		printf("\n\n\t\tStack is Empty\n");
+	else
+		for (int i = ptr->top; i >= 0; i--)
+			printf("%d ", ptr->arr[i]);
+	puts("");
+}

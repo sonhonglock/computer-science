@@ -1,0 +1,26 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+//에라토스테네스의 체를 이용한 풀이
+int main() {
+    int M,N;
+    scanf("%d %d",&M,&N);
+    bool arr[N+1];
+    memset(arr,true,sizeof(arr));
+    arr[0]=false;
+    arr[1]=false;
+    for (int i=2;i*i<N+1;i++)
+    {
+        if (arr[i]==true)
+        {
+            for (int j=i*i;j<N+1;j+=i)
+            {
+                arr[j] = false;
+            }
+        }
+    }
+    for (int i=M;i<N+1;i++)
+    {
+        if (arr[i]==true) printf("%d\n",i);
+    }
+}

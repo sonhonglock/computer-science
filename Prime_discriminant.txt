@@ -1,0 +1,48 @@
+1. 가장 기본적이고 이해하기 쉬운 버전 (추천 초보용)
+C#include <stdbool.h>
+
+bool is_prime(int n) {
+    if (n <= 1) return false;           // 1 이하 → 소수 아님
+    if (n == 2 || n == 3) return true;  // 2, 3은 소수
+    if (n % 2 == 0 || n % 3 == 0) return false;
+
+    for (int i = 5; i * i <= n; i += 6) {
+        if (n % i == 0 || n % (i + 2) == 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+시간 복잡도: O(√n)
+6k ± 1 최적화 적용 → 가장 빠르고 실전에서 많이 씀
+int 범위(2억 정도)까지 문제없이 잘 동작
+
+2. 아주 간단한 버전 (코딩 테스트 초반용)
+Cbool is_prime(int n) {
+    if (n <= 1) return false;
+    for (int i = 2; i * i <= n; i++) {
+        if (n % i == 0) return false;
+    }
+    return true;
+}
+
+이해는 제일 쉽지만, 큰 수(1e9 이상)에서 조금 느림
+
+3. long long 버전 (n이 1e12 ~ 1e18 정도까지 필요할 때)
+C#include <stdbool.h>
+#include <math.h>
+
+bool is_prime(long long n) {
+    if (n <= 1) return false;
+    if (n == 2 || n == 3) return true;
+    if (n % 2 == 0 || n % 3 == 0) return false;
+
+    for (long long i = 5; i * i <= n; i += 6) {
+        if (n % i == 0 || n % (i + 2) == 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
