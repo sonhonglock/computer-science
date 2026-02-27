@@ -1,71 +1,48 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h> //strtok
-#include "myArrayStack.h"
+1. 가장 기본적이고 이해하기 쉬운 버전 (추천 초보용)
+C#include <stdbool.h>
 
-#pragma warning (disable : 4996)
+bool is_prime(int n) {
+    if (n <= 1) return false;           // 1 이하 → 소수 아님
+    if (n == 2 || n == 3) return true;  // 2, 3은 소수
+    if (n % 2 == 0 || n % 3 == 0) return false;
 
-int postfix(char* expr);
-
-int main()
-{
-	char expr[] = "3 4 + 5 * 6 -";
-
-	int result = postfix(expr);
-	printf("3 4 + 5 * 6 - = %d\n", result);
-
-	return 0;
+    for (int i = 5; i * i <= n; i += 6) {
+        if (n % i == 0 || n % (i + 2) == 0) {
+            return false;
+        }
+    }
+    return true;
 }
 
-int postfix(char* expr)
-{
-	//후위 표기식 -> 스택으로 계산
-	//연산자를 읽어들이기 전까지의 모든 값을 스택에 push
-	//연산자가 나오면 2개의 값을 pop해서 연산
-	//연산 결과를 스택에 push
+시간 복잡도: O(√n)
+6k ± 1 최적화 적용 → 가장 빠르고 실전에서 많이 씀
+int 범위(2억 정도)까지 문제없이 잘 동작
 
-	stack stk; //스택 구조체 생성
-	initStack(&stk);
-
-	char* token = strtok(expr, " ");
-
-	while (token != NULL) //문자열의 끝까지 읽어들인다.
-	{
-		if (token[0] >= '0' && token[0] <= '9')
-		{
-			//숫자 형태의 문자를 실제 숫자로 변환
-			int num = token[0] - '0';
-
-			push(&stk, num);
-		}	
-		else
-		{
-			//연산자라면? 2개의 값을 꺼낸다.(pop)
-			int var2 = pop(&stk);
-			int var1 = pop(&stk);
-
-			//연산자에 따라 연산 결과를 스택에 push
-			switch (token[0])
-			{
-			case '+':
-				push(&stk, var1 + var2);
-				break;
-			case '-':
-				push(&stk, var1 - var2);
-				break;
-			case '*':
-				push(&stk, var1 * var2);
-				break;
-			case '/':
-				push(&stk, var1 / var2);
-				break;
-			default:
-				return -99999;
-			}
-		}
-
-		token = strtok(NULL, " ");
-	}
-	//return peek(&stk);
-	return stk.arr[0];
+2. 아주 간단한 버전 (코딩 테스트 초반용)
+Cbool is_prime(int n) {
+    if (n <= 1) return false;
+    for (int i = 2; i * i <= n; i++) {
+        if (n % i == 0) return false;
+    }
+    return true;
 }
+
+이해는 제일 쉽지만, 큰 수(1e9 이상)에서 조금 느림
+
+3. long long 버전 (n이 1e12 ~ 1e18 정도까지 필요할 때)
+C#include <stdbool.h>
+#include <math.h>
+
+bool is_prime(long long n) {
+    if (n <= 1) return false;
+    if (n == 2 || n == 3) return true;
+    if (n % 2 == 0 || n % 3 == 0) return false;
+
+    for (long long i = 5; i * i <= n; i += 6) {
+        if (n % i == 0 || n % (i + 2) == 0) {
+            return false;
+        }
+    }
+    return true;
+}
+

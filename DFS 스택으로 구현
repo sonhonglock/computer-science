@@ -1,101 +1,142 @@
 // Online C compiler to run C program online
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#define max_size 100
+#include <string.h>
+#define table_size 200003
 
+unsigned long long hash(char arr[11])
+{
+    char* temp = arr;
+    unsigned long long result=0;
+    while (*temp != '\0')
+    {
+        result =(result*131+(unsigned char)*temp)%table_size;
+        temp++;
+    }
+    return result;
+}
 
 typedef struct node
 {
-    int vertex;
+    char arr[11];
+    int count;
     struct node* next;
 }node;
 
-typedef struct stack
+typedef struct hashtable
 {
-    int arr[max_size];
-    int top;
-}stack;
+    node** head;
+    int tablesize;
+    int hashcount;
+}hashtable;
 
-void stackinit(stack* s)
+void hashinit(hashtable* h)
 {
-    s->top = -1;
+    h->head = (node**)calloc(table_size,sizeof(node*));
+    h->tablesize = table_size;
+    h->hashcount = 0;
 }
 
-int isempty(stack* s)
+int hashfind(hashtable* h,char arr[11])
 {
-    return (s->top == -1);
-}
-
-int isfull(stack* s)
-{
-    return (s->top == max_size-1);
-}
-
-void push(stack* s,int data)
-{
-    if (isfull(s)) return;
-    
-    s->arr[++(s->top)] = data;
-}
-
-int pop(stack* s)
-{
-    if (isempty(s)) return -99999;
-    
-    return s->arr[(s->top)--];
-}
-
-node* adjcent[max_size];
-
-int main() {
-    stack s;
-    stackinit(&s);
-    int vertexcount = 7;
-    bool visited[vertexcount];
-    memset(visited,0,sizeof(visited));
-    memset(adjcent,0,sizeof(adjcent));
-    
-    int start = 0;
-    
-    int arc[][2] = {{0,1},{0,2},{1,3},{1,4},{2,5},{2,6}};
-    
-    for (int i=0;i<vertexcount-1;i++)
+    unsigned long long idx = hash(arr);
+    node* curnode = h->head[idx];
+    while (curnode)
     {
-        int dest = arc[i][1];
-        int start = arc[i][0];
-        node* newnode = (node*)malloc(sizeof(node));
-        newnode->vertex = dest;
-        newnode->next = adjcent[start];
-        adjcent[start] = newnode;
-        
-        newnode = (node*)malloc(sizeof(node));
-        newnode->vertex = start;
-        newnode->next = adjcent[dest];
-        adjcent[dest] = newnode;
+        if (strcmp(curnode->arr,arr)==0) return 1;
+        curnode = curnode->next;
     }
+    return 0;
+}
 
-    push(&s,start);
-    visited[start] = true;
-    
-    while (!isempty(&s))
+node* hashfindnode(hashtable* h,char arr[11])
+{
+    unsigned long long idx = hash(arr);
+    node* curnode = h->head[idx];
+    while (curnode)
     {
-        int popdata = pop(&s);
-        printf("%d ",popdata);
-        node* ptr = adjcent[popdata];
-        while (ptr)
+        if (strcmp(curnode->arr,arr)==0) return curnode;
+        curnode = curnode->next;
+    }
+    return NULL;
+}
+
+void hashinsert(hashtable* h,char arr[11])
+{
+    if (hashfind(h,arr)) return;
+    unsigned long long idx = hash(arr);
+    node* newnode = (node*)malloc(sizeof(node));
+    strcpy(newnode->arr,arr);
+    newnode->next = NULL;
+    newnode->count = 1;
+    
+    if (h->head[idx] == NULL)
+    {
+        h->head[idx] = newnode;
+        h->hashcount++;
+        return;
+    }
+    else
+    {
+        newnode->next = h->head[idx];
+        h->head[idx] = newnode;
+        h->hashcount++;
+        return;
+    }
+}
+
+int compare(const void* a,const void* b)
+{
+    node* x = *(node**)a;
+    node* y = *(node**)b;
+    
+    if (x->count>y->count) return -1;
+    if (x->count<y->count) return 1;
+    
+    if (strlen(x->arr)>strlen(y->arr)) return -1;
+    if (strlen(x->arr)<strlen(y->arr)) return 1;
+    
+    if (strcmp(x->arr,y->arr)<0) return -1;
+    if (strcmp(x->arr,y->arr)>0) return 1;
+    
+    return 0;
+}
+int main() {
+    int N,M;
+    scanf("%d %d",&N,&M);
+    hashtable h;
+    hashinit(&h);
+    
+    for (int i=0;i<N;i++)
+    {
+        char arr[11];
+        scanf("%s",arr);
+        if (strlen(arr)<M) continue;
+        if (hashfind(&h,arr))
         {
-            if (visited[ptr->vertex])
-            {
-                ptr = ptr->next;
-                continue;
-            }
-            
-            push(&s,ptr->vertex);
-            visited[ptr->vertex] = true;
-            
-            ptr = ptr->next;
+            node* findnode = hashfindnode(&h,arr);
+            findnode->count++;
+            continue;
         }
+        hashinsert(&h,arr);
+    }
+    
+    node* nodearr[h.hashcount];
+    int idx = 0;
+    for (int i=0;i<table_size;i++)
+    {
+        node* curnode = h.head[i];
+        while (curnode)
+        {
+            nodearr[idx++] = curnode;
+            curnode = curnode->next;
+        }
+    }
+    
+    qsort(nodearr,h.hashcount,sizeof(node*),compare);
+    
+    for (int i=0;i<h.hashcount;i++)
+    {
+        printf("%s\n",nodearr[i]->arr);
     }
 }

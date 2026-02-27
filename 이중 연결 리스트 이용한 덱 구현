@@ -1,145 +1,52 @@
 #include <stdio.h>
-#include <stdlib.h>
-
-typedef struct node
+void bisect(int arr[1000000002],int size,int firstidx,int lastidx) //등분함수
 {
-    int data;
-    struct node* prev;
-    struct node* next;
-}node;
-
-typedef struct deque
-{
-    node* head;
-    node* tail;
-    int count;
-}deque;
-
-void dequeinit(deque* d)
-{
-    d->head = NULL;
-    d->tail = NULL;
-    d->count = 0;
-}
-
-int isempty(deque* d)
-{
-    if (d->count ==0) return 1;
-    return 0;
-}
-
-void insertfront(deque* d,int data)
-{
-    node* newnode = (node*)malloc(sizeof(node));
-    newnode->data = data;
-    newnode->prev = NULL;
-    newnode->next = NULL;
-    
-    if (newnode==NULL)
+    idx = firstidx
+    while (idx<=lastidx)
     {
-        printf("/* error */");
-        return;
+        if (arr[idx]>0) continue;
+        arr[idx]++;
+        idx = idx+size;
     }
-    
-    if (d->count == 0)
+}
+void draw(int arr[1000000002],int idx)
+{
+    arr[idx]++;
+}
+int gcd(int a,int b) // 유클리드 호제법
+{
+    if (a > b)
     {
-        d->head = newnode;
-        d->tail = newnode;
-        d->count++;
-        return;
+        int result = a%b;
+        if (result == 0) return b;
+        
+        return gcd(result,b);
     }
-    
-    newnode->next = d->head;
-    (d->head)->prev = newnode;
-    d->head = newnode;
-    d->count++;
-    return;
+    else
+    {
+        int result = b%a;
+        if (result == 0) return a;
+        
+        return gcd(result,a);
+    }
 }
 
-void inserttail(deque* d,int data)
+int gcd_recursive(int a,int b)
 {
-    node* newnode = (node*)malloc(sizeof(node));
-    newnode->data = data;
-    newnode->prev = NULL;
-    newnode->next = NULL;
-    
-    if (newnode==NULL)
-    {
-        printf("/* error */");
-        return;
-    }
-    
-    if (d->count == 0)
-    {
-        d->head = newnode;
-        d->tail = newnode;
-        d->count++;
-        return;
-    }
-    
-    (d->tail)->next = newnode;
-    newnode->prev = d->tail;
-    d->tail = newnode;
-    d->count++;
+    if (b==0) return a;
+    return gcd_recursive(b,a%b);
 }
 
-int pophead(deque* d)
+int lcm(int a,int b)
 {
-    if (isempty(d)) return -1;
-    
-    node* delNode = d->head;
-    d->head = delNode->next;
-    (d->head)->prev = NULL;
-    int popdata = delNode->data;
-    d->count--;
-    free(delNode);
-    
-    if (d->count == 0)
-    {
-        d->head = NULL;
-        d->tail = NULL;
-        return popdata;
-    }
-    
-    return popdata;
-}
-
-int poptail(deque* d)
-{
-    if (isempty(d)) return -1;
-    
-    node* delNode = d->tail;
-    d->tail = delNode->prev;
-    (d->tail)->next = NULL;
-    int popdata = delNode->data;
-    d->count--;
-    free(delNode);
-    
-    if (d->count == 0)
-    {
-        d->head = NULL;
-        d->tail = NULL;
-        return popdata;
-    }
-    
-    return popdata;
-}
-
-int peekfront(deque* d)
-{
-    if (isempty(d)) return -1;
-    return (d->head)->data;
-}
-
-int peektail(deque* d)
-{
-    if (isempty(d)) return -1;
-    return (d->tail)->data;
+    int gcd = gcd_recursive(a,b);
+    return gcd*(a/gcd)*(b/gcd);
 }
 
 int main() {
-    // Write C code here
-    printf("Try programiz.pro");
-
+    int a = 18;
+    int b = 12;
+    printf("%d\n",gcd(a,b));
+    printf("%d",lcm(a,b));
     return 0;
 }

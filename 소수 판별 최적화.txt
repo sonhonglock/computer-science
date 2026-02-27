@@ -1,57 +1,130 @@
 #include <stdio.h>
-#include <stdbool.h>
-#include <math.h>
+#include <stdlib.h>
+#include <string.h>
 
-bool is_prime(long long n)
+typedef struct node
 {
-    if (n<=1) return false;
-    if (n==2||n==3) return true;
-    if (n%2==0 || n%3==0) return false;
+    char a;
+    struct node* next;
+}node;
+
+typedef struct stack
+{
+    node* top;
+    int num;
+}stack;
+
+void stackinit(stack* stk)
+{
+    stk->top=NULL;
+    stk->num = 0;
+}
+
+void insert(stack* stk,char a)
+{
+    node* newnode = (node*)malloc(sizeof(node));
+    newnode->a = a;
+    newnode->next = NULL;
     
-    for (long long i=5;i*i<=n;i+=6)
+    if (stk->top == NULL)
     {
-        if (n%i==0 || n%(i+2) ==0) return false;
+        stk->top=newnode;
+        (stk->num)++;
     }
-    return true;
-}
-
-long long solve(long long n)
-{
-    long long i=n;
-    while(1)
+    else
     {
-       if (is_prime(i)) return i;
-       i++;
+        newnode->next = stk->top;
+        stk->top = newnode;
+        (stk->num)++;
     }
 }
 
-long long next_prime(long long n)
+void pop(stack* stk)
 {
-    if (n<=2) return 2;
-    
-    long long next_prime = n;
-    while(is_prime(next_prime) == false)
+    if (stk->top == NULL)
     {
-        if (next_prime%2 ==0)
-        {
-            next_prime++;
-        }
-        else
-        {
-            next_prime+= 2;
-        }
+        return;
     }
-    return next_prime;
+    node* temp = stk->top;
+    int value = temp->a;
+    (stk->num)--;
+    stk->top = temp->next;
+    free(temp);
+    return;
 }
+
+/*int stacknum(stack* stk)
+{
+    printf("%d\n",stk->num);
+}*/
+
+int isempty(stack* stk)
+{
+    if (stk->top == NULL)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+/*int printtop(stack* stk)
+{
+    if (isnull(stk)==1)
+    {
+        return -1;
+    }
+    else
+    {
+        return (stk->top)->data;
+    }
+}*/
+
 int main() {
-    int n;
-    scanf("%d",&n);
-    for (int i=0;i<n;i++)
+    int K;
+    scanf("%d",&K);
+    
+    for (int i=0;i<K;i++)
     {
-        long long k;
-        scanf("%lld",&k);
-        printf("%lld\n",next_prime(k));
+        stack p;
+        stackinit(&p);
+        
+        char arr[51];
+        scanf("%s",arr);
+        
+        char* cur = arr;
+        int valid = 1;
+        
+        while (*cur !='\0')
+        {
+            if (*cur == '(')
+            {
+                insert(&p,*cur);
+            }
+            else
+            {
+                if (isempty(&p))
+                {
+                    valid=0;
+                    break;
+                }
+                pop(&p);
+            }
+            cur++;
+        }
+        
+        if (isempty(&p)==0)
+        {
+            valid = 0 ;
+        }
+        
+        while (isempty(&p)==0)
+        {
+            pop(&p);
+        }
+        
+        printf("%s\n",valid ? "YES":"NO");
     }
-
-    return 0;
 }

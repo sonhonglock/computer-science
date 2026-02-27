@@ -1,102 +1,149 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define max_size 1000
 
-typedef struct deque
-{
-    int front;
-    int rear;
-    int count;
-    int arr[max_size];
-}deque;
+#pragma warning (disable : 4996)
 
-void dequeinit(deque* d)
+typedef struct node
 {
-    d->front = 0;
-    d->rear = 0;
-    d->count = 0;
+	int value;				//노드 값
+	struct node* next;		//다음 노드의 주소를 저장
+}node;
+
+void enqueue(node** pHead, node** pTail, int data);
+int dequeue(node** pHead, node** pTail);
+void displayQueue(node* head, node* tail);
+void clearQueue(node** pHead, node** pTail);
+
+int main()
+{	
+	node* head = NULL;
+	node* tail = NULL;
+	int choice, data;
+
+	while (1)
+	{
+		system("cls");
+		printf("\n\n\t\t*** Circular Queue(원형큐) ***\n\n");
+		printf("1. enqueue(삽입)   2.dequeue(삭제)   3. print    4. clear   0. terminate\n");
+		printf("choice : ");
+		scanf("%d", &choice);
+		while (getchar() != '\n');
+
+		switch (choice)
+		{
+		case 1:
+			printf("\nInteger Input : ");
+			scanf("%d", &data);
+			while (getchar() != '\n');
+
+			enqueue(&head, &tail, data); //맨 뒤 삽입
+
+			break;
+		case 2:		
+
+			data = dequeue(&head, &tail); //맨 앞 삭제 후, 삭제된 값 리턴
+
+			if (data == -999999999)
+				printf("\n\n\t\tqueue underflow\n");
+			else
+				printf("\n\t\t\t%d enqueue!!!\n", data);
+			break;
+		case 3:	
+			displayQueue(head, tail);
+			break;
+		case 4:
+			clearQueue(&head, &tail);
+			break;
+		case 0:
+			clearQueue(&head, &tail);
+			exit(0);
+		}
+		printf("\n\n\t\t");
+		system("pause");
+	}
+
+	return 0;
 }
 
-int isempty(deque* d)
+void enqueue(node** pHead, node** pTail, int data) //O(1)
 {
-    if (d->count ==0)
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
+	//head == *pHead
+	//tail == *pTail
+
+	node* newNode;
+	newNode = (node*)malloc(sizeof(node));
+	newNode->value = data;
+	newNode->next = NULL;
+
+	if (*pHead == NULL)
+	{
+		//첫 노드인 경우는 head면서 tail
+		*pHead = newNode;
+		*pTail = newNode;
+		return;
+	}
+
+	(*pTail)->next = newNode;
+	*pTail = newNode;
+	(*pTail)->next = *pHead; //원형큐는 마지막 노드가 첫노드를 가리킨다.
 }
 
-int isfull(deque* d)
+int dequeue(node** pHead, node** pTail)
 {
-    return (d->count == max_size);
+	int delValue;
+	node* delNode;
+	if (*pHead == NULL)
+		return -999999999;
+
+	delNode = *pHead; //첫 노드를 삭제할 노드로 설정
+	delValue = delNode->value; //삭제할 값 저장
+	*pHead = (*pHead)->next; //head는 다음으로 이동
+	free(delNode);
+	(*pTail)->next = *pHead;
+
+	if (*pHead == *pTail) //노드가 한 개인 경우??
+		(*pTail)->next = NULL;
+
+	if (*pHead == NULL)
+		*pTail = NULL;
+
+	return delValue; //삭제된 값 리턴
 }
 
-void insertfront(deque* d,int data)
+void displayQueue(node* head, node* tail)
 {
-    if (isfull(d)) return;
-    
-    d->front = (d->front-1+max_size)%max_size;
-    d->arr[d->front] = data;
-    d->count++;
+	node* curNode;
+	system("cls");
+	printf("\n\nCircular Queue Display : ");
+	if (head == NULL)
+		return;
+
+	curNode = head; //첫 노드를 방문노드로 설정
+
+	while (curNode != tail)
+	{
+		printf("%d => ", curNode->value);
+		curNode = curNode->next;
+	}
+
+	printf("%d\n", curNode->value); //마지막 노드 출력
 }
 
-void insertrear(deque* d,int data)
+void clearQueue(node** pHead, node** pTail)
 {
-    if (isfull(d)) return;
-    
-    d->arr[d->rear] = data;
-    d->rear = (d->rear+1)%max_size;
-    d->count++;
-}
+	node* delNode;
+	if (*pHead == NULL)
+		return;
 
-int popfront(deque* d)
-{
-    if (isempty(d)) return -1;
-    
-    int popdata = d->arr[d->front];
-    d->front = (d->front+1)%max_size;
-    d->count--;
-    return popdata;
-}
+	//맨 앞 삭제 -> 반복
+	while (*pHead != *pTail) //마지막 노드는 포함X(head == tail)
+	{
+		delNode = *pHead;
+		(*pHead) = (*pHead)->next;
+		free(delNode);
+	}
 
-int poprear(deque* d)
-{
-    if (isempty(d)) return -1;
-    
-    d->rear = (d->rear-1+max_size)%max_size;
-    int popdata = d->arr[d->rear];
-    d->count--;
-    return popdata;
-}
-
-int peekfront(deque* d)
-{
-    if (isempty(d)) return -1;
-    
-    return d->arr[d->front];
-}
-
-int peekrear(deque* d)
-{
-    if (isempty(d)) return -1;
-    
-    return d->arr[(d->rear-1+max_size)%max_size];
-}
-
-void printdeque(deque* d)
-{
-    if (isempty(d))
-    {
-        printf("데이터 없음 !!");
-        return;
-    }
-    int idx = d->front;
-    for (int i=0;i<d->count;i++)
-    {
-        printf("%d ",d->arr[idx]);
-        idx = (idx+1)%max_size;
-    }
+	free(*pHead); //마지막 노드 제거
+	*pHead = NULL;
+	*pTail = NULL;
 }

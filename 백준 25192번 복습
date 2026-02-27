@@ -1,117 +1,109 @@
+/* enter 가 들어가는 유형은 처음 만나봐서 고전했다.
+enter 가 들어가는 유형은 version 변수를 도입하는 것이 문제 해결의 핵심이라는 것을 알게됐다.*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-#define MAX_SIZE 200003
+#define table_size 200003
 
 typedef struct node
 {
     char arr[21];
-    int version;
     struct node* next;
+    int version;
 }node;
 
 typedef struct hashtable
 {
     node** head;
-    int table_size;
-    int count;
+    int size;
+    int version;
 }hashtable;
 
-void hashinit(hashtable* h)
+void hashinit(hashtable* h,int version)
 {
-    h->head = (node**)calloc(MAX_SIZE,sizeof(node*));
-    h->table_size = MAX_SIZE;
-    h->count = 0;
+    h->size = table_size;
+    h->head = (node**)calloc(table_size,sizeof(node*));
+    h->version = version;
 }
 
 unsigned long long hash(char arr[21])
 {
     unsigned long long result = 0;
-
-    char* ptr = arr;
-    while (*ptr)
+    char* temp = arr;
+    while (*(temp) != '\0')
     {
-        result = (result*131+(unsigned char)(*ptr))%MAX_SIZE;
-        ptr++;
+        result = (result*131+(unsigned char)*temp)%table_size;
+        temp++;
     }
     return result;
 }
 
-int hashfind(hashtable* h,char arr[21],int version)
+void hashinsert(hashtable* h,char arr[21])
 {
-    unsigned long long hashvalue = hash(arr);
+    unsigned long long idx = hash(arr);
+    node* newnode = (node*)malloc(sizeof(node));
+    strcpy(newnode->arr,arr);
+    newnode->version = h->version;
+    newnode->next = NULL;
+    
+    if (h->head[idx] == NULL)
+    {
+        h->head[idx] = newnode;
+        return;
+    }
+    
+    newnode->next = h->head[idx];
+    h->head[idx] = newnode;
+}
 
-    node* curnode = h->head[hashvalue];
+int findhash(hashtable* h,char arr[21])
+{
+    unsigned long long idx = hash(arr);
+    node* curnode = h->head[idx];
+    
     while (curnode)
     {
-        if (strcmp(curnode->arr,arr)==0 && curnode->version == version) return 1;
+        if (strcmp(curnode->arr,arr)==0)
+        {
+            if (curnode->version == h->version) return 1;
+            return 0;
+        }
         curnode = curnode->next;
     }
     return 0;
 }
 
-node* hashfindnode(hashtable* h,char arr[21],int version)
+void cleanhash(hashtable* h)
 {
-    unsigned long long hashvalue = hash(arr);
-
-    node* curnode = h->head[hashvalue];
-    while (curnode)
-    {
-        if (strcmp(curnode->arr,arr)==0 && curnode->version == version) return curnode;
-        curnode = curnode->next;
-    }
-    return NULL;
+    memset(h->head, 0, sizeof(node*) * h->size);
 }
 
-void hashinsert(hashtable* h,char arr[21],int version)
-{
-    if (hashfind(h,arr,version)) return;
-    
-    node* newnode = (node*)malloc(sizeof(node));
-    newnode->version = version;
-    newnode->next = NULL;
-    strcpy(newnode->arr,arr);
-    unsigned long long hashvalue = hash(arr);
-
-    if (h->head[hashvalue] == NULL)
-    {
-        h->head[hashvalue] = newnode;
-        h->count++;
-        return;
-    }
-    else
-    {
-        newnode->next = h->head[hashvalue];
-        h->head[hashvalue] = newnode;
-        h->count++;
-        return;
-    }
-}
-
-int main(){
+int main() {
+    int version = 1;
     int N;
     scanf("%d",&N);
-    char arr[21];
     hashtable h;
-    hashinit(&h);
-    int nowVersion = 0;
-
+    hashinit(&h,version);
+    int count =0;
+    char enter[21] = "ENTER";
+    
     for (int i=0;i<N;i++)
     {
+        char arr[21];
         scanf("%s",arr);
-        if (strcmp(arr,"ENTER")==0){
-            nowVersion++;
+        if (strcmp(arr,"ENTER")==0)
+        {
+            h.version++;
             continue;
         }
-        hashinsert(&h,arr,nowVersion);
+        
+        if (!findhash(&h,arr))
+        {
+            count++;
+            hashinsert(&h,arr);
+        }
     }
-
-    printf("%d",h.count);
-
+ 
+    printf("%d",count);
 }
-
-//시간 복잡도 -> 대략 10^5,안전//
-
-/*gcc enterproblem.c
-cmd /c "a.exe < input.txt"*/
