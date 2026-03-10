@@ -1,0 +1,36 @@
+/* 2개의 배열 병합하는 코드 연습 */
+#include <stdio.h>
+#include <string.h>
+
+void mergearr(int* arr1,int size1,int* arr2,int size2,int* mergearr)
+{
+    int idx1,idx2,idxm = 0;
+    
+    while (idx1 < size1 && idx2 < size2)
+    {
+        if (arr1[idx1] < arr2[idx2])
+        {
+            mergearr[idxm++] = arr1[idx1++];
+        }
+        else
+        {
+            mergearr[idxm++] = arr2[idx2++];
+        }
+    }
+
+    while (idx1 < size1)
+    {
+        mergearr[idxm++] = arr1[idx1++];
+    }
+
+    while (idx2 < size2)
+    {
+        mergearr[idxm++] = arr2[idx2++];
+    }
+
+    
+}
+
+int main(){
+    
+}
